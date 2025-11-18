@@ -5,4 +5,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://103.176.79.78:3000", // URL backend kamu
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""), // optional
+      },
+    },
+  },
 });

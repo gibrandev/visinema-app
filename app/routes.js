@@ -9,7 +9,7 @@ export default [
         route("dashboard", "routes/admin/dashboard.jsx"),
         route("user", "routes/admin/user/index.jsx"),
         route("user/create", "routes/admin/user/create.jsx"),
-        route("user/edit", "routes/admin/user/edit.jsx"),
+        route("user/:id/edit", "routes/admin/user/edit.jsx"),
     ]),
 ];
 

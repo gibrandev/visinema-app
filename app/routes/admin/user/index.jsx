@@ -1,4 +1,6 @@
 import { NavLink } from "react-router";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 export function meta({}) {
   return [
@@ -8,6 +10,29 @@ export function meta({}) {
 }
 
 export default function Home() {
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const token = Cookies.get('token')
+    const fetchUsers = async () => {
+      setLoading(true);
+      const res = await fetch("/api/users", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+      });
+
+      const data = await res.json();
+      setUsers(data);
+      setLoading(false);
+    };
+
+    fetchUsers();
+  }, []);
+
   return (
     <div className="mx-auto max-w-7xl p-6 lg:p-8">
       <header className="mb-6">
@@ -37,7 +62,8 @@ export default function Home() {
           </div>
         </div>
       </header>
-      <div className="overflow-hidden rounded-xl border border-border-light bg-surface-light dark:border-border-dark dark:bg-surface-dark">
+      {loading ? <div className="p-4">Loading...</div>
+        :<div className="overflow-hidden rounded-xl border border-border-light bg-surface-light dark:border-border-dark dark:bg-surface-dark">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="border-b border-border-light bg-background-light dark:border-border-dark dark:bg-background-dark">
@@ -60,16 +86,16 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
+              {users.map(u =><tr key={u.id} className="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Olivia Rhye
+                  {u.name}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  olivia@example.com
+                  {u.email}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm">
                   <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary dark:bg-primary/20">
-                    Admin
+                    {u.role}
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
@@ -82,11 +108,11 @@ export default function Home() {
                         visibility
                       </span>
                     </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
+                    <NavLink to={`/admin/user/${u.id}/edit`} className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
                       <span className="material-symbols-outlined text-xl">
                         edit
                       </span>
-                    </button>
+                    </NavLink>
                     <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
                       <span className="material-symbols-outlined text-xl">
                         delete
@@ -94,150 +120,10 @@ export default function Home() {
                     </button>
                   </div>
                 </td>
-              </tr>
-              <tr className="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Phoenix Baker
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  phoenix@example.com
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm">
-                  <span className="inline-flex items-center rounded-full bg-slate-400/10 px-2.5 py-0.5 text-xs font-medium text-subtext-light dark:bg-slate-400/20 dark:text-subtext-dark">
-                    Editor
-                  </span>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  1 hour ago
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div className="flex items-center justify-end gap-2">
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span className="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span className="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span className="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr className="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Lana Steiner
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  lana@example.com
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm">
-                  <span className="inline-flex items-center rounded-full bg-slate-400/10 px-2.5 py-0.5 text-xs font-medium text-subtext-light dark:bg-slate-400/20 dark:text-subtext-dark">
-                    Viewer
-                  </span>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  5 days ago
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div className="flex items-center justify-end gap-2">
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span className="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span className="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span className="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr className="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Demi Wilkinson
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  demi@example.com
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm">
-                  <span className="inline-flex items-center rounded-full bg-slate-400/10 px-2.5 py-0.5 text-xs font-medium text-subtext-light dark:bg-slate-400/20 dark:text-subtext-dark">
-                    Editor
-                  </span>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  Jan 21, 2024
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div className="flex items-center justify-end gap-2">
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span className="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span className="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span className="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Candice Wu
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  candice@example.com
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm">
-                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary dark:bg-primary/20">
-                    Admin
-                  </span>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  Jan 15, 2024
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div className="flex items-center justify-end gap-2">
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span className="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span className="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span className="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              </tr>)}
             </tbody>
           </table>
-        </div>
+        </div> 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-border-light p-4 dark:border-border-dark sm:flex-row">
           <p className="text-sm text-subtext-light dark:text-subtext-dark">
             Showing{" "}
@@ -312,7 +198,7 @@ export default function Home() {
             </a>
           </nav>
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

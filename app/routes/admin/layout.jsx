@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, redirect } from "react-router";
 import Cookies from 'js-cookie';
 import { useNavigate } from "react-router";
+import toast, { Toaster } from 'react-hot-toast';
 
 export async function loader({ request }) {
   const cookie = request.headers.get("Cookie");
@@ -22,13 +23,11 @@ export default function Admin({ children }) {
   const [user, setUser] = useState(null);
   let navigate = useNavigate();
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("user");
-      try {
-        setUser(stored ? JSON.parse(stored) : null);
-      } catch {
-        setUser(null);
-      }
+    const stored = localStorage.getItem("user");
+    try {
+      setUser(stored ? JSON.parse(stored) : null);
+    } catch {
+      setUser(null);
     }
   }, []);
 
@@ -95,7 +94,9 @@ export default function Admin({ children }) {
             <div
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
               data-alt="User avatar"
-            ></div>
+            >
+              <img src="/avatar.jpeg" className="rounded-full" />
+            </div>
             <div className="flex flex-col">
               <p className="text-text-light dark:text-text-dark text-sm font-medium">
                 {user?.name}
@@ -122,6 +123,7 @@ export default function Admin({ children }) {
         {children}
         <Outlet />
       </main>
+      <Toaster />
     </div>
   );
 }

@@ -1,3 +1,8 @@
+import { NavLink, useNavigate, useParams } from "react-router";
+import { useForm } from "react-hook-form";
+import Cookies from 'js-cookie';
+import { useState, useEffect } from "react";
+import toast, { Toaster } from 'react-hot-toast';
 
 export function meta({}) {
   return [
@@ -6,313 +11,187 @@ export function meta({}) {
   ];
 }
 
-export default function Home() {
+export default function Home({id}) {
+    const [loading, setLoading] = useState(false);
+    const [user, setUser] = useState(null)
+    let params = useParams();
+    let navigate = useNavigate();
+
+    useEffect(() => {
+      const token = Cookies.get('token')
+      const fetchUsers = async () => {
+        setLoading(true);
+        const res = await fetch(`/api/users/${params.id}`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+        });
+
+        const data = await res.json();
+        setUser(data);
+        setLoading(false);
+      };
+
+      fetchUsers();
+    }, []);
+
+    const {
+      register,
+      handleSubmit,
+      watch,
+      formState: { errors },
+    } = useForm()
+  
+    const onSubmit = async (data) => {
+      const token = Cookies.get('token')
+      try {
+        toast.loading('Loading...');
+        setLoading(true);
+        const response = await fetch(`/api/users/${user?.id}`, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+          setLoading(false);
+          throw new Error(`Response status: ${response.status}`);
+        }
+  
+        const result = await response.json();
+        setLoading(false);
+        toast.dismiss();
+        toast.success(result.message);
+        navigate('/admin/user')
+        console.log(result);
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
   return (
-    <div class="mx-auto max-w-7xl p-6 lg:p-8">
-      <header class="mb-6">
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div class="flex flex-col gap-1">
-            <h1 class="text-3xl font-black tracking-tight text-text-light dark:text-text-dark">
-              User Management
-            </h1>
-            <p class="text-base font-normal text-subtext-light dark:text-subtext-dark">
-              Administer and manage all user accounts in the system.
-            </p>
-          </div>
-          <div class="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
-            <div class="relative flex-1">
-              <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">
-                search
-              </span>
-              <input
-                class="w-full rounded-lg border-border-light bg-surface-light py-2 pl-10 pr-4 text-text-light placeholder:text-subtext-light focus:border-primary focus:ring-primary dark:border-border-dark dark:bg-surface-dark dark:text-text-dark dark:placeholder:text-subtext-dark"
-                placeholder="Search by name or email..."
-                type="search"
-              />
-            </div>
-            <button class="flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg bg-blue-400 px-4 text-sm font-bold text-white">
-              <span class="material-symbols-outlined">add</span>
-              <span class="truncate">Add User</span>
-            </button>
-          </div>
+    <main class="flex-1 p-6 lg:p-10">
+      <div class="mx-auto max-w-4xl">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <a
+            class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal hover:text-primary transition-colors"
+            href="#"
+          >
+            User Management
+          </a>
+          <span class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal">
+            /
+          </span>
+          <span class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal">
+            Create User
+          </span>
         </div>
-      </header>
-      <div class="overflow-hidden rounded-xl border border-border-light bg-surface-light dark:border-border-dark dark:bg-surface-dark">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead class="border-b border-border-light bg-background-light dark:border-border-dark dark:bg-background-dark">
-              <tr>
-                <th class="px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Name
-                </th>
-                <th class="px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Email
-                </th>
-                <th class="px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
+
+        <div class="flex flex-wrap justify-between gap-3 mb-8">
+          <h1 class="text-slate-900 dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">
+            Create New User
+          </h1>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-sm">
+          <form class="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+            <div class="p-6 md:p-8 space-y-6">
+              <div class="flex flex-col">
+                <label
+                  class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal pb-2"
+                  for="full-name"
+                >
+                  Full Name
+                </label>
+                <input
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-800 dark:text-slate-200 focus:outline-0 focus:ring-1 focus:ring-primary/50 border border-slate-300 dark:border-slate-700 bg-background-light dark:bg-background-dark focus:border-primary h-12 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-4 py-4 text-sm font-normal leading-normal"
+                  id="full-name"
+                  placeholder="Enter user's full name"
+                  type="text"
+                  defaultValue={user?.name}
+                  {...register("name", { required: true })}
+                />
+              </div>
+
+              <div class="flex flex-col">
+                <label
+                  class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal pb-2"
+                  for="email"
+                >
+                  Email Address
+                </label>
+                <input
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-800 dark:text-slate-200 focus:outline-0 focus:ring-1 focus:ring-primary/50 border border-slate-300 dark:border-slate-700 bg-background-light dark:bg-background-dark focus:border-primary h-12 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-4 py-4 pr-10 text-sm font-normal leading-normal"
+                  id="email"
+                  placeholder="Enter user's email address"
+                  type="email"
+                  defaultValue={user?.email}
+                  {...register("email", { required: true })}
+                />
+              </div>
+
+              <div class="flex flex-col">
+                <label
+                  class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal pb-2"
+                  for="password"
+                >
+                  Password
+                </label>
+                <div class="relative">
+                  <input
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-800 dark:text-slate-200 focus:outline-0 focus:ring-1 focus:ring-primary/50 border border-slate-300 dark:border-slate-700 bg-background-light dark:bg-background-dark focus:border-primary h-12 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-4 pr-10 text-sm font-normal leading-normal"
+                    id="password"
+                    placeholder="Create a password"
+                    type="password"
+                    {...register("password", { required: false, min: 8 })}
+                  />
+                </div>
+                <p class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">
+                  Minimum 8 characters, include one number and one special
+                  character.
+                </p>
+              </div>
+
+              <div class="flex flex-col">
+                <label
+                  class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal pb-2"
+                  for="role"
+                >
                   Role
-                </th>
-                <th class="px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Last Active
-                </th>
-                <th class="px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark text-right">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Olivia Rhye
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  olivia@example.com
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm">
-                  <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary dark:bg-primary/20">
-                    Admin
-                  </span>
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  2 days ago
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div class="flex items-center justify-end gap-2">
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span class="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span class="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span class="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr class="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Phoenix Baker
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  phoenix@example.com
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm">
-                  <span class="inline-flex items-center rounded-full bg-slate-400/10 px-2.5 py-0.5 text-xs font-medium text-subtext-light dark:bg-slate-400/20 dark:text-subtext-dark">
-                    Editor
-                  </span>
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  1 hour ago
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div class="flex items-center justify-end gap-2">
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span class="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span class="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span class="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr class="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Lana Steiner
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  lana@example.com
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm">
-                  <span class="inline-flex items-center rounded-full bg-slate-400/10 px-2.5 py-0.5 text-xs font-medium text-subtext-light dark:bg-slate-400/20 dark:text-subtext-dark">
-                    Viewer
-                  </span>
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  5 days ago
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div class="flex items-center justify-end gap-2">
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span class="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span class="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span class="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr class="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Demi Wilkinson
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  demi@example.com
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm">
-                  <span class="inline-flex items-center rounded-full bg-slate-400/10 px-2.5 py-0.5 text-xs font-medium text-subtext-light dark:bg-slate-400/20 dark:text-subtext-dark">
-                    Editor
-                  </span>
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  Jan 21, 2024
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div class="flex items-center justify-end gap-2">
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span class="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span class="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span class="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Candice Wu
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  candice@example.com
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm">
-                  <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary dark:bg-primary/20">
-                    Admin
-                  </span>
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  Jan 15, 2024
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                  <div class="flex items-center justify-end gap-2">
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span class="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
-                      <span class="material-symbols-outlined text-xl">
-                        edit
-                      </span>
-                    </button>
-                    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
-                      <span class="material-symbols-outlined text-xl">
-                        delete
-                      </span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="flex flex-col items-center justify-between gap-4 border-t border-border-light p-4 dark:border-border-dark sm:flex-row">
-          <p class="text-sm text-subtext-light dark:text-subtext-dark">
-            Showing{" "}
-            <span class="font-medium text-text-light dark:text-text-dark">
-              1
-            </span>{" "}
-            to{" "}
-            <span class="font-medium text-text-light dark:text-text-dark">
-              5
-            </span>{" "}
-            of{" "}
-            <span class="font-medium text-text-light dark:text-text-dark">
-              150
-            </span>{" "}
-            users
-          </p>
-          <nav class="flex items-center">
-            <a
-              class="flex size-9 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              <span class="material-symbols-outlined text-xl">
-                chevron_left
-              </span>
-            </a>
-            <a
-              class="flex size-9 items-center justify-center rounded-lg bg-primary/20 text-sm font-bold text-primary"
-              href="#"
-            >
-              1
-            </a>
-            <a
-              class="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              2
-            </a>
-            <a
-              class="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              3
-            </a>
-            <span class="flex size-9 items-center justify-center text-sm font-normal text-subtext-light dark:text-subtext-dark">
-              ...
-            </span>
-            <a
-              class="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              8
-            </a>
-            <a
-              class="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              9
-            </a>
-            <a
-              class="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              10
-            </a>
-            <a
-              class="flex size-9 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              <span class="material-symbols-outlined text-xl">
-                chevron_right
-              </span>
-            </a>
-          </nav>
+                </label>
+                <select
+                  class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-800 dark:text-slate-200 focus:outline-0 focus:ring-1 focus:ring-primary/50 border border-slate-300 dark:border-slate-700 bg-background-light dark:bg-background-dark focus:border-primary h-12 px-4 py-2 text-sm font-normal leading-normal"
+                  id="role"
+                  defaultValue={user?.role}
+                  {...register("role", { required: true })}
+                >
+                  <option value={'admin'}>Admin</option>
+                  <option value={'user'} selected>User</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/20 p-4 rounded-b-xl">
+              <NavLink
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-5 transition-colors"
+                to={"/admin/user"}
+              >
+                Cancel
+              </NavLink>
+              <button
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-blue-400 text-white hover:bg-primary/90 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-5 transition-colors"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? 'Processing' : 'Update User'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

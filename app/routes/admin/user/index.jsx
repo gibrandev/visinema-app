@@ -1,6 +1,7 @@
 import { NavLink } from "react-router";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import toast, { Toaster } from 'react-hot-toast';
 
 export function meta({}) {
   return [
@@ -13,25 +14,52 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
+  const fetchUsers = async () => {
     const token = Cookies.get('token')
-    const fetchUsers = async () => {
-      setLoading(true);
-      const res = await fetch("/api/users", {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-      });
+    setLoading(true);
+    const res = await fetch("/api/users", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+    });
 
-      const data = await res.json();
-      setUsers(data);
-      setLoading(false);
-    };
+    const data = await res.json();
+    setUsers(data);
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchUsers();
   }, []);
+
+  const handleDelete = async (id) => {
+    const token = Cookies.get('token');
+    if (confirm("Are you sure delete this user?") == true) {
+      try {
+        toast.loading('Loading...');
+        setLoading(true);
+        const response = await fetch(`/api/users/${id}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        toast.dismiss();
+        toast.success(result.message);
+        fetchUsers();
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
+  }
 
   return (
     <div className="mx-auto max-w-7xl p-6 lg:p-8">
@@ -113,7 +141,7 @@ export default function Home() {
                         edit
                       </span>
                     </NavLink>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
+                    <button onClick={() => handleDelete(u.id)} className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-danger/10 hover:text-danger dark:text-subtext-dark dark:hover:bg-danger/20">
                       <span className="material-symbols-outlined text-xl">
                         delete
                       </span>

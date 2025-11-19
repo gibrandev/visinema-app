@@ -12,76 +12,77 @@ export function meta({}) {
 }
 
 export default function Home({id}) {
-    const [loading, setLoading] = useState(false);
-    const [user, setUser] = useState(null)
-    let params = useParams();
-    let navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null)
+  let params = useParams();
+  let navigate = useNavigate();
 
-    const {
-      register,
-      handleSubmit,
-      watch,
-      formState: { errors },
-      reset
-    } = useForm()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    reset
+  } = useForm()
 
-    useEffect(() => {
-      const token = Cookies.get('token')
-      const fetchUsers = async () => {
-        setLoading(true);
-        const res = await fetch(`/api/users/${params.id}`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-            }
-        });
-
-        const data = await res.json();
-        setUser(data);
-        setLoading(false);
-        reset({
-          name: data.name,
-          email: data.email,
-          role: data.role,
-          password: "",
-        });
-      };
-
-      fetchUsers();
-    }, []);
-
-    const onSubmit = async (data) => {
-      const token = Cookies.get('token')
-      try {
-        toast.loading('Loading...');
-        setLoading(true);
-        const response = await fetch(`/api/users/${user?.id}`, {
-          method: "PUT",
+  useEffect(() => {
+    const token = Cookies.get('token')
+    const fetchUsers = async () => {
+      setLoading(true);
+      const res = await fetch(`/api/users/${params.id}`, {
+          method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-        if (!response.ok) {
-          setLoading(false);
-          throw new Error(`Response status: ${response.status}`);
-        }
-  
-        const result = await response.json();
-        setLoading(false);
-        toast.dismiss();
-        toast.success(result.message);
-        navigate('/admin/user')
-        console.log(result);
-      } catch (error) {
-        console.error(error.message);
-      }
+            "Content-Type": "application/json"
+          }
+      });
+
+      const data = await res.json();
+      setUser(data);
+      setLoading(false);
+      reset({
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        password: "",
+      });
     };
+
+    fetchUsers();
+  }, []);
+
+  const onSubmit = async (data) => {
+    const token = Cookies.get('token')
+    try {
+      toast.loading('Loading...');
+      setLoading(true);
+      const response = await fetch(`/api/users/${user?.id}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        setLoading(false);
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setLoading(false);
+      toast.dismiss();
+      toast.success(result.message);
+      navigate('/admin/user')
+      console.log(result);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
   return (
     <main class="flex-1 p-6 lg:p-10">
-      <div class="mx-auto max-w-4xl">
+      {!loading ? <div class="mx-auto max-w-4xl">
         <div class="flex flex-wrap gap-2 mb-4">
           <NavLink
             class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal hover:text-primary transition-colors"
@@ -93,13 +94,13 @@ export default function Home({id}) {
             /
           </span>
           <span class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal">
-            Create User
+            Edit User
           </span>
         </div>
 
         <div class="flex flex-wrap justify-between gap-3 mb-8">
           <h1 class="text-slate-900 dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">
-            Create New User
+            Edit User
           </h1>
         </div>
 
@@ -195,7 +196,7 @@ export default function Home({id}) {
             </div>
           </form>
         </div>
-      </div>
+      </div>: <div>Loading...</div>}
     </main>
   );
 }

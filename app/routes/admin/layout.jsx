@@ -42,10 +42,6 @@ export default function Admin({ children }) {
       <aside className="flex fixed h-screen w-64 flex-col justify-between border-r border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-4 transition-all duration-300">
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-3 px-2">
-            <div
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-primary"
-              data-alt="Application Logo"
-            ></div>
             <h1 className="text-text-light dark:text-text-dark text-lg font-bold leading-normal">
               WebApp
             </h1>
@@ -69,7 +65,7 @@ export default function Admin({ children }) {
                 Dashboard
               </p>
             </NavLink>
-            <NavLink
+            {user?.role === 'admin' ? <NavLink
               to="/admin/user"
               className={({ isActive, isPending, isTransitioning }) =>
                 [
@@ -86,7 +82,7 @@ export default function Admin({ children }) {
               <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal">
                 User Management
               </p>
-            </NavLink>
+            </NavLink>: null }
           </nav>
         </div>
         <div className="flex flex-col gap-1 border-t border-border-light dark:border-border-dark pt-4">

@@ -11,18 +11,19 @@ export function meta({}) {
 }
 
 export default function Home() {
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
 
   const fetchUsers = async () => {
     const token = Cookies.get('token')
     setLoading(true);
-    const res = await fetch("/api/users", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+    const res = await fetch(`/api/users?q=${search}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
     });
 
     const data = await res.json();
@@ -75,14 +76,17 @@ export default function Home() {
           </div>
           <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">
-                search
-              </span>
-              <input
-                className="w-full rounded-lg border-border-light bg-surface-light py-2 pl-10 pr-4 text-text-light placeholder:text-subtext-light focus:border-primary focus:ring-primary dark:border-border-dark dark:bg-surface-dark dark:text-text-dark dark:placeholder:text-subtext-dark"
-                placeholder="Search by name or email..."
-                type="search"
-              />
+              <div className="flex gap-2">
+                <input
+                  className="w-full rounded-lg border-border-light bg-surface-light py-2 pr-4 text-text-light placeholder:text-subtext-light focus:border-primary focus:ring-primary dark:border-border-dark dark:bg-surface-dark dark:text-text-dark dark:placeholder:text-subtext-dark"
+                  placeholder="Search by name or email..."
+                  type="search"
+                  onChange={e => setSearch(e.target.value)}
+                />
+                <button onClick={() => fetchUsers()} className="flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg bg-green-400 px-4 text-sm font-bold text-white">
+                  Search
+                </button>
+              </div>
             </div>
             <NavLink to="/admin/user/create" className="flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg bg-blue-400 px-4 text-sm font-bold text-white">
               <span className="truncate">Add User</span>
@@ -114,7 +118,7 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
-              {users.map(u =><tr key={u.id} className="border-b border-border-light dark:border-border-dark hover:bg-primary/5">
+              {users.map(u =><tr key={u.id} className="border-border-light dark:border-border-dark hover:bg-primary/5">
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
                   {u.name}
                 </td>
@@ -131,11 +135,6 @@ export default function Home() {
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20">
-                      <span className="material-symbols-outlined text-xl">
-                        visibility
-                      </span>
-                    </button>
                     <NavLink to={`/admin/user/${u.id}/edit`} className="flex h-8 w-8 items-center justify-center rounded-lg text-subtext-light hover:bg-warning/10 hover:text-warning dark:text-subtext-dark dark:hover:bg-warning/20">
                       <span className="material-symbols-outlined text-xl">
                         edit
@@ -152,80 +151,6 @@ export default function Home() {
             </tbody>
           </table>
         </div> 
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-border-light p-4 dark:border-border-dark sm:flex-row">
-          <p className="text-sm text-subtext-light dark:text-subtext-dark">
-            Showing{" "}
-            <span className="font-medium text-text-light dark:text-text-dark">
-              1
-            </span>{" "}
-            to{" "}
-            <span className="font-medium text-text-light dark:text-text-dark">
-              5
-            </span>{" "}
-            of{" "}
-            <span className="font-medium text-text-light dark:text-text-dark">
-              150
-            </span>{" "}
-            users
-          </p>
-          <nav className="flex items-center">
-            <a
-              className="flex size-9 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              <span className="material-symbols-outlined text-xl">
-                chevron_left
-              </span>
-            </a>
-            <a
-              className="flex size-9 items-center justify-center rounded-lg bg-primary/20 text-sm font-bold text-primary"
-              href="#"
-            >
-              1
-            </a>
-            <a
-              className="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              2
-            </a>
-            <a
-              className="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              3
-            </a>
-            <span className="flex size-9 items-center justify-center text-sm font-normal text-subtext-light dark:text-subtext-dark">
-              ...
-            </span>
-            <a
-              className="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              8
-            </a>
-            <a
-              className="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              9
-            </a>
-            <a
-              className="flex size-9 items-center justify-center rounded-lg text-sm font-normal text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              10
-            </a>
-            <a
-              className="flex size-9 items-center justify-center rounded-lg text-subtext-light hover:bg-primary/10 hover:text-primary dark:text-subtext-dark dark:hover:bg-primary/20"
-              href="#"
-            >
-              <span className="material-symbols-outlined text-xl">
-                chevron_right
-              </span>
-            </a>
-          </nav>
-        </div>
       </div>}
     </div>
   );

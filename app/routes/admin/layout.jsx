@@ -31,6 +31,12 @@ export default function Admin({ children }) {
     }
   }, []);
 
+  const openMenu = () => {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("hidden");
+    sidebar.classList.toggle("flex");
+  }
+
   const logout = () => {
     Cookies.remove('token');
     localStorage.removeItem('user');
@@ -39,7 +45,7 @@ export default function Admin({ children }) {
 
   return (
     <div className="relative flex min-h-screen w-full">
-      <aside className="flex fixed h-screen w-64 flex-col justify-between border-r border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-4 transition-all duration-300">
+      <aside id="sidebar" className="hidden z-40 md:flex fixed h-screen w-64 flex-col justify-between border-r border-border-light dark:border-border-dark bg-white dark:bg-card-dark p-4 transition-all duration-300">
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-3 px-2">
             <h1 className="text-text-light dark:text-text-dark text-lg font-bold leading-normal">
@@ -115,7 +121,14 @@ export default function Admin({ children }) {
           </button>
         </div>
       </aside>
-      <main className="flex-1 ml-64 flex-col overflow-y-auto">
+      <div className="fixed right-0 md:hidden z-50" id="menu">
+        <button onClick={() => openMenu()} className="bg-blue-300 p-2 text-white cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z" />
+          </svg>
+        </button>
+      </div>
+      <main id="main-content" className="flex-1 md:ml-64 flex-col overflow-y-auto">
         {children}
         <Outlet />
       </main>

@@ -49,6 +49,7 @@ export default function Home() {
           },
         });
         if (!response.ok) {
+          toast.dismiss();
           throw new Error(`Response status: ${response.status}`);
         }
 
@@ -79,7 +80,7 @@ export default function Home() {
               <div className="flex gap-2">
                 <input
                   className="w-full rounded-lg border-border-light bg-surface-light py-2 pr-4 text-text-light placeholder:text-subtext-light focus:border-primary focus:ring-primary dark:border-border-dark dark:bg-surface-dark dark:text-text-dark dark:placeholder:text-subtext-dark"
-                  placeholder="Search by name or email..."
+                  placeholder="Search by name..."
                   type="search"
                   onChange={e => setSearch(e.target.value)}
                 />

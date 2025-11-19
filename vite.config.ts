@@ -8,9 +8,9 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://103.176.79.78:3000", // URL backend kamu
+        target: "http://103.176.79.78:3000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""), // optional
+        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },

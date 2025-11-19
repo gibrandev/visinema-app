@@ -106,7 +106,7 @@ export default function Home() {
                   Role
                 </th>
                 <th className="px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
-                  Last Active
+                  Created Date
                 </th>
                 <th className="px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark text-right">
                   Actions
@@ -127,7 +127,7 @@ export default function Home() {
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-subtext-light dark:text-subtext-dark">
-                  2 days ago
+                  {u.createdAt}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
                   <div className="flex items-center justify-end gap-2">

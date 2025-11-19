@@ -17,6 +17,14 @@ export default function Home({id}) {
     let params = useParams();
     let navigate = useNavigate();
 
+    const {
+      register,
+      handleSubmit,
+      watch,
+      formState: { errors },
+      reset
+    } = useForm()
+
     useEffect(() => {
       const token = Cookies.get('token')
       const fetchUsers = async () => {
@@ -32,18 +40,17 @@ export default function Home({id}) {
         const data = await res.json();
         setUser(data);
         setLoading(false);
+        reset({
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          password: "",
+        });
       };
 
       fetchUsers();
     }, []);
 
-    const {
-      register,
-      handleSubmit,
-      watch,
-      formState: { errors },
-    } = useForm()
-  
     const onSubmit = async (data) => {
       const token = Cookies.get('token')
       try {
@@ -76,12 +83,12 @@ export default function Home({id}) {
     <main class="flex-1 p-6 lg:p-10">
       <div class="mx-auto max-w-4xl">
         <div class="flex flex-wrap gap-2 mb-4">
-          <a
+          <NavLink
             class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal hover:text-primary transition-colors"
-            href="#"
+            to="/admin/user"
           >
             User Management
-          </a>
+          </NavLink>
           <span class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal">
             /
           </span>
@@ -111,7 +118,6 @@ export default function Home({id}) {
                   id="full-name"
                   placeholder="Enter user's full name"
                   type="text"
-                  defaultValue={user?.name}
                   {...register("name", { required: true })}
                 />
               </div>
@@ -128,7 +134,6 @@ export default function Home({id}) {
                   id="email"
                   placeholder="Enter user's email address"
                   type="email"
-                  defaultValue={user?.email}
                   {...register("email", { required: true })}
                 />
               </div>
@@ -165,11 +170,10 @@ export default function Home({id}) {
                 <select
                   class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-800 dark:text-slate-200 focus:outline-0 focus:ring-1 focus:ring-primary/50 border border-slate-300 dark:border-slate-700 bg-background-light dark:bg-background-dark focus:border-primary h-12 px-4 py-2 text-sm font-normal leading-normal"
                   id="role"
-                  defaultValue={user?.role}
                   {...register("role", { required: true })}
                 >
                   <option value={'admin'}>Admin</option>
-                  <option value={'user'} selected>User</option>
+                  <option value={'user'}>User</option>
                 </select>
               </div>
             </div>

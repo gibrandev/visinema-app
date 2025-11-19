@@ -49,12 +49,12 @@ export default function Home() {
     <main class="flex-1 p-6 lg:p-10">
       <div class="mx-auto max-w-4xl">
         <div class="flex flex-wrap gap-2 mb-4">
-          <a
+          <NavLink
             class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal hover:text-primary transition-colors"
-            href="#"
+            to="/admin/user"
           >
             User Management
-          </a>
+          </NavLink>
           <span class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal">
             /
           </span>
